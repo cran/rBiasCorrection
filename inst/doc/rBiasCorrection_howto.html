@@ -11,7 +11,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 
 
-<meta name="date" content="2020-07-30" />
+<meta name="date" content="2020-09-13" />
 
 <title>rBiasCorrection</title>
 
@@ -317,7 +317,7 @@ code > span.er { color: #a61717; background-color: #e3d2d2; }
 
 
 <h1 class="title toc-ignore">rBiasCorrection</h1>
-<h4 class="date">2020-07-30</h4>
+<h4 class="date">2020-09-13</h4>
 
 
 
@@ -336,7 +336,7 @@ code > span.er { color: #a61717; background-color: #e3d2d2; }
 </li>
 <li><code>samplelocusname</code>: the name of the sample or locus under investigation<br />
 </li>
-<li>the <code>seed</code> argument shoud be set for reproducibility<br />
+<li>the <code>seed</code> argument should be set for reproducibility<br />
 </li>
 <li><code>plotdir</code>: a folder, where the resulting plots should be stored<br />
 </li>
@@ -345,9 +345,9 @@ code > span.er { color: #a61717; background-color: #e3d2d2; }
 <div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1"></a>plotdir &lt;-<span class="st"> </span><span class="kw">paste0</span>(<span class="kw">tempdir</span>(), <span class="st">&quot;/png/&quot;</span>)</span>
 <span id="cb2-2"><a href="#cb2-2"></a>csvdir &lt;-<span class="st"> </span><span class="kw">paste0</span>(<span class="kw">tempdir</span>(), <span class="st">&quot;/csv/&quot;</span>)</span>
 <span id="cb2-3"><a href="#cb2-3"></a><span class="kw">dir.create</span>(plotdir)</span>
-<span id="cb2-4"><a href="#cb2-4"></a><span class="co">#&gt; Warning in dir.create(plotdir): &#39;/tmp/RtmpDxNC2T/png&#39; already exists</span></span>
+<span id="cb2-4"><a href="#cb2-4"></a><span class="co">#&gt; Warning in dir.create(plotdir): &#39;/tmp/RtmpEwsvBT/png&#39; already exists</span></span>
 <span id="cb2-5"><a href="#cb2-5"></a><span class="kw">dir.create</span>(csvdir)</span>
-<span id="cb2-6"><a href="#cb2-6"></a><span class="co">#&gt; Warning in dir.create(csvdir): &#39;/tmp/RtmpDxNC2T/csv&#39; already exists</span></span>
+<span id="cb2-6"><a href="#cb2-6"></a><span class="co">#&gt; Warning in dir.create(csvdir): &#39;/tmp/RtmpEwsvBT/csv&#39; already exists</span></span>
 <span id="cb2-7"><a href="#cb2-7"></a></span>
 <span id="cb2-8"><a href="#cb2-8"></a>samplelocusname &lt;-<span class="st"> &quot;CDH1&quot;</span></span>
 <span id="cb2-9"><a href="#cb2-9"></a>seed &lt;-<span class="st"> </span><span class="dv">1234</span></span></code></pre></div>
@@ -423,7 +423,7 @@ y = a * (x - m0)^3 + b * (x - m0)^2 + [\frac{y1 -y0}{m1 - m0} - a * (m1 - m0)^2 
 <p>All file names are prefixed with the name, specified in <code>samplelocusname</code>. The tables are stored as CSV-files and include a timestamp in their file name. The plots are stored as PNG-files. Their size can be specified with the arguments <code>plot_height</code>, <code>plot_width</code> and <code>plot_textsize</code>, which can optionally be passed to the function <code>rBiasCorrection::biascorrection</code>.</p>
 <p>The following tables are stored:</p>
 <ul>
-<li><strong>[name]<em>corrected_values</em>[timestamp].csv</strong>: the bias corrected experimental data (this is the final results table of the samples under investigaion)<br />
+<li><strong>[name]<em>corrected_values</em>[timestamp].csv</strong>: the bias corrected experimental data (this is the final results table of the samples under investigation)<br />
 </li>
 <li>[name]<em>regression_stats</em>[timestamp].csv: the regression parameters calculated for each CpG site, including goodness-of-fit metrics<br />
 </li>
@@ -440,8 +440,8 @@ y = a * (x - m0)^3 + b * (x - m0)^2 + [\frac{y1 -y0}{m1 - m0} - a * (m1 - m0)^2 
 <li>Column 1 presents the CpG site’s ID.</li>
 <li>Column 2 contains the mean of the relative absolute errors for every interrogated CpG site.</li>
 <li>Columns 3-9 comprise the sum of squared errors of the hyperbolic regression (‘SSE [h]’) and the coefficients of the hyperbolic equation that describes the hyperbolic regression curves for the respective CpG sites.</li>
-<li>Columns 10-15 summarise the sum of squared errors of the cubic polynomial regression (‘SSE [c]’) and the coefficients of the cubic polynomial equations.</li>
-<li>The rows highlighted with a green background colour indicate the regression method (hyperbolic or cubic polynomial) that is suggested by BiasCorrector for correcting data. This automatic choice of the regression method relies on either minimising the value of SSE (the default setting) or minimising the average relative error as selected by the user in the Settings tab.</li>
+<li>Columns 10-15 summarize the sum of squared errors of the cubic polynomial regression (‘SSE [c]’) and the coefficients of the cubic polynomial equations.</li>
+<li>The rows highlighted with a green background color indicate the regression method (hyperbolic or cubic polynomial) that is suggested by BiasCorrector for correcting data. This automatic choice of the regression method relies on either minimizing the value of SSE (the default setting) or minimizing the average relative error as selected by the user in the Settings tab.</li>
 </ul>
 <div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1"></a>filename &lt;-<span class="st"> </span><span class="kw">list.files</span>(csvdir)[<span class="kw">grepl</span>(<span class="st">&quot;regression_stats_[[:digit:]]&quot;</span>, <span class="kw">list.files</span>(csvdir))]</span>
 <span id="cb5-2"><a href="#cb5-2"></a>reg_stats &lt;-<span class="st"> </span>data.table<span class="op">::</span><span class="kw">fread</span>(<span class="kw">paste0</span>(csvdir, filename))</span>

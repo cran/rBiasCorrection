@@ -1,4 +1,4 @@
-83a22c89d2b41a29933f9a56985d25b8 *DESCRIPTION
+d1f54ac514ccceb54e9a5abfded2710c *DESCRIPTION
 c38329098f4b12b595f3e0516303bf4b *NAMESPACE
 4db60f6faccdc91f2f85354231a150dd *R/aggregated_input.R
 e1810921b35dbe12bc2f1136784c5b3b *R/better_model.R
@@ -15,8 +15,8 @@ e120254bb0bae58c67f071544728f6fc *R/plotting_utility.R
 4342fd6face39a33df50ef748bee4a19 *R/regression_utility.R
 1a9b1bd6c8555837ef2dce45a4fcbf1d *R/solving_equations.R
 9febaf44b5e1cd0b310c4425692049ac *R/statistics_list.R
-9f8c76f8561d5d922eddcdab9d2cb7fe *R/utils.R
-185345467b7a38c1a1a9865b8bba3e78 *README.md
+3b3031cba87a812354738321bd46043b *R/utils.R
+159240c0f5875755f08aa1c994eee574 *README.md
 9b011e47e2eecd7b177fae39d54e224d *build/vignette.rds
 1a6908ffbe32d65cf37b5b32f5550353 *data/example._plot.df_agg.rda
 bf6449fa897e9340a2a605c991cb7fb1 *data/example._plot_coef_c.rda
@@ -25,10 +25,10 @@ b8374757fcfb0240f8ce0f4908386489 *data/example.data_calibration.rda
 8bfc4e0235edb70ad4633aa8442780bb *data/example.data_experimental.rda
 dbc4aceb12a7dded7246c3d4a5af91da *inst/doc/rBiasCorrection_benchmarking.R
 e7d30ae3c650e3d1f8c93f843445bdcc *inst/doc/rBiasCorrection_benchmarking.Rmd
-6be5190f2bc87c9010fc5ba28fb8ce92 *inst/doc/rBiasCorrection_benchmarking.html
+1e418ba5b73747629cbac000d78a7815 *inst/doc/rBiasCorrection_benchmarking.html
 4cf457883b136b1fa0a7e3f1a79c38c3 *inst/doc/rBiasCorrection_howto.R
 047ecd77b2ac7b30346ba828469740c2 *inst/doc/rBiasCorrection_howto.Rmd
-66a019abede129c7cf3a9d7fa177f942 *inst/doc/rBiasCorrection_howto.html
+381bd881bb066afca88485e56792e158 *inst/doc/rBiasCorrection_howto.html
 eeb716f5c79158991aaafd065c137d0f *inst/template_calibration.csv
 5b2951911f10604af2631198621a3426 *inst/template_experimental.csv
 91f6f7488ea84b54380bc48f8e1cbad7 *man/aggregated_input.Rd
@@ -59,7 +59,7 @@ a9139e87f575b55beac7d40f09901893 *man/statistics_list.Rd
 a3ccef8f5385348ac1835dc9a6b888b2 *tests/testthat/test-algorithm_minmax_TRUE.R
 f019cf132c9be7a57d92a8728843d650 *tests/testthat/test-biascorrection.R
 62e417aea7e637de20ff6c71788a6166 *tests/testthat/test-clean_dt.R
-beb033e0524e78e5d51921230e485d0e *tests/testthat/test-create_aggregated.R
+dd442bd735788761786aa7fa6cf9332e *tests/testthat/test-create_aggregated.R
 b4741e6aeb33c2997233897d5a8cd1f3 *tests/testthat/test-hyperbolic.R
 a8fd1219cfff862a68f630345bbd88f5 *tests/testthat/test-lints.R
 1efd8951c687abe7485cfc1bef248b97 *tests/testthat/test-plotting.R

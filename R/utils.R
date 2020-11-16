@@ -60,20 +60,26 @@ on_start <- function(plotdir,
   suppressMessages(suppressWarnings(file.create(logfilename)))
 
   if (isTRUE(parallel) && future::availableCores() > 1) {
-    write_log(
-      message = "on_start: using future::plan(\"multiprocess\")",
-      logfilename = logfilename
-    )
-    suppressWarnings(future::plan("multiprocess"))
-    on.exit(
-      suppressWarnings(future::plan("sequential"))
-    )
+
+    if (.Platform$OS.type == "unix") {
+      write_log(
+        message = "on_start: using future::plan(\"multicore\")",
+        logfilename = logfilename
+      )
+      future::plan("multicore")
+    } else {
+      write_log(
+        message = "on_start: using future::plan(\"multisession\")",
+        logfilename = logfilename
+      )
+      future::plan("multisession")
+    }
   } else {
     write_log(
       message = "on_start: using future::plan(\"sequential\")",
       logfilename = logfilename
     )
-    suppressWarnings(future::plan("sequential"))
+    future::plan("sequential")
   }
 }
 

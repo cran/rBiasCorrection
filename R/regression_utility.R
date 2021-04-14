@@ -115,15 +115,6 @@ regression_type1 <- function(datatable,
     logfilename = logfilename
   )
 
-  if (is.null(locus_id)) {
-    plot_title <- "bquote(italic(.(locusname)))"
-  } else {
-    plot_title <- paste0(
-      "bquote('Locus: ' ~ italic(.(locus_id)) ~",
-      "' - Sample: ' ~ .(locusname))"
-    )
-  }
-
   # result_list
   result_list <- future.apply::future_sapply(
     X = vec_cal,
@@ -168,11 +159,28 @@ regression_type1 <- function(datatable,
     future.seed = TRUE
   )
 
-
   plot.listR <- future.apply::future_lapply(
     X = seq_len(length(vec_cal)),
     FUN = function(i) {
       local({
+
+
+        if (is.null(locus_id)) {
+          # nolint start
+          # plot_title <- eval(parse(text = "bquote(italic(.(locusname)))"))
+          # nolint end
+          plot_title <- locusname
+        } else {
+          # nolint start
+          # plot_title <- eval(parse(text = paste0(
+          #   "bquote('Locus: ' ~ italic(.(locus_id)) ~",
+          #   "' - Sample: ' ~ .(locusname))"
+          # )))
+          # nolint end
+          plot_title <- paste0(
+            "Locus: ", locus_id, " - Sample: ", locusname
+          )
+        }
 
         df_agg <- create_agg_df(
           datatable = datatable,
@@ -183,6 +191,7 @@ regression_type1 <- function(datatable,
         } else if (mode == "corrected") {
           custom_ylab <- "methylation (%)\nafter BiasCorrection"
         }
+
 
         lb1 <- c(paste0("  R\u00B2: \n  Hyperbolic = ",
                         round(result_list[[vec_cal[i]]]$Coef_hyper$R2, 2),
@@ -235,7 +244,7 @@ regression_type1 <- function(datatable,
           ggplot2::ylab(custom_ylab) +
           ggplot2::xlab("actual methylation (%)") +
           ggplot2::labs(
-            title = eval(parse(text = plot_title)),
+            title = plot_title,
             subtitle = paste("CpG:", vec_cal[i])
           ) +
           ggplot2::geom_text(
@@ -257,7 +266,7 @@ regression_type1 <- function(datatable,
                 ymin = "ymin",
                 ymax = "ymax"
               ),
-              flatten = 0.5
+              fatten = 1
             )
           }
         }

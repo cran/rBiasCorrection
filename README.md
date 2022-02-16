@@ -4,7 +4,7 @@
 [![R CMD Check via {tic}](https://github.com/kapsner/rBiasCorrection/workflows/R%20CMD%20Check%20via%20{tic}/badge.svg?branch=master)](https://github.com/kapsner/rBiasCorrection/actions)
 [![linting](https://github.com/kapsner/rBiasCorrection/workflows/lint/badge.svg?branch=master)](https://github.com/kapsner/rBiasCorrection/actions)
 [![test-coverage](https://github.com/kapsner/rBiasCorrection/workflows/test-coverage/badge.svg?branch=master)](https://github.com/kapsner/rBiasCorrection/actions)
-[![codecov](https://codecov.io/gh/kapsner/rBiasCorrection/branch/master/graph/badge.svg)](https://codecov.io/gh/kapsner/rBiasCorrection)
+[![codecov](https://codecov.io/gh/kapsner/rBiasCorrection/branch/master/graph/badge.svg)](https://app.codecov.io/gh/kapsner/rBiasCorrection)
 [![pipeline status](https://gitlab.com/kapsner/rBiasCorrection/badges/master/pipeline.svg)](https://gitlab.com/kapsner/rBiasCorrection/-/commits/master)
 [![coverage report](https://gitlab.com/kapsner/rBiasCorrection/badges/master/coverage.svg)](https://gitlab.com/kapsner/rBiasCorrection/-/commits/master)
 [![CRAN Status Badge](https://www.r-pkg.org/badges/version-ago/rBiasCorrection)](https://cran.r-project.org/package=rBiasCorrection)
@@ -25,16 +25,16 @@ You can install `rBiasCorrection` simply with via R's `install.packages` interfa
 install.packages("rBiasCorrection")
 ```
 
-## development version
+## Development version
 
 If you want to use the latest development version, you can install the github version of `rBiasCorrection` with:
 
 ```r
-install.packages("devtools")
-devtools::install_github("kapsner/rBiasCorrection")
+install.packages("remotes")
+remotes::install_github("kapsner/rBiasCorrection")
 ```
 
-# Example
+## Example
 
 This is a basic example which shows you how to correct PCR-bias in quantitative DNA methylation data:
 
@@ -61,19 +61,18 @@ biascorrection(
 
 More detailed information on how to use the package `rBiasCorrection` can be found in the [package vignette](vignettes/) and the [FAQs](https://github.com/kapsner/rBiasCorrection/blob/master/FAQ.md).
 
-# BiasCorrector
+## BiasCorrector
 
 The GUI `BiasCorrector` provides the functionality implemented in `rBiasCorrection` in a web application. For further information please visit [https://github.com/kapsner/BiasCorrector](https://github.com/kapsner/BiasCorrector).
 
-# FAQ 
+## FAQ 
 
 For further information, please refer to the [frequently asked questions](https://github.com/kapsner/rBiasCorrection/blob/master/FAQ.md).
 
-# Citation 
+## Citation 
 
-```
-L.A. Kapsner, M.G. Zavgorodnij, S.P. Majorova, A. Hotz‐Wagenblatt, O.V. Kolychev, I.N. Lebedev, J.D. Hoheisel, A. Hartmann, A. Bauer, S. Mate, H. Prokosch, F. Haller, and E.A. Moskalev, BiasCorrector: fast and accurate correction of all types of experimental biases in quantitative DNA methylation data derived by different technologies, Int. J. Cancer. (2021) ijc.33681. doi:10.1002/ijc.33681.
-```
+
+L.A. Kapsner, M.G. Zavgorodnij, S.P. Majorova, A. Hotz‐Wagenblatt, O.V. Kolychev, I.N. Lebedev, J.D. Hoheisel, A. Hartmann, A. Bauer, S. Mate, H. Prokosch, F. Haller, and E.A. Moskalev, BiasCorrector: fast and accurate correction of all types of experimental biases in quantitative DNA methylation data derived by different technologies, Int. J. Cancer. (2021) ijc.33681. doi:[10.1002/ijc.33681](https://onlinelibrary.wiley.com/doi/10.1002/ijc.33681).
 
 ```
 @article{kapsner2021,
@@ -89,6 +88,6 @@ L.A. Kapsner, M.G. Zavgorodnij, S.P. Majorova, A. Hotz‐Wagenblatt, O.V. Kolych
 }
 ```
 
-# More Infos
+## More Infos
 
 - Original work by Moskalev et al.: https://doi.org/10.1093/nar/gkr213

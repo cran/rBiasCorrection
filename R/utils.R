@@ -1,5 +1,5 @@
 # rBiasCorrection: Correct Bias in Quantitative DNA Methylation Analyses.
-# Copyright (C) 2019-2021 Lorenz Kapsner
+# Copyright (C) 2019-2022 Lorenz Kapsner
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -32,12 +32,14 @@
 #'   initialized.
 #'
 #' @examples
+#' \donttest{ # runtime > 5 sec.
 #' plotdir <- paste0(tempdir(), "/plots/")
 #' csvdir <- paste0(tempdir(), "/csv/")
 #' logfilename <- paste0(tempdir(), "/log.txt")
 #' parallel <- FALSE
 #'
 #' on_start(plotdir, csvdir, logfilename, parallel)
+#' }
 #'
 #' @seealso \link[future]{plan}
 #'

@@ -77,7 +77,9 @@
 #'   hyperbolic regression equation and the cubic regression equation.
 #'   Important for reproducibility (default: 1234).
 #' @param parallel A boolean. If TRUE (the default value), initializing
-#'   `future::plan("multiprocess")` before running the code.
+#'   `future::plan("multicore")` (on unix systems) or
+#'   `future::plan("multisession")` (on non-unix systems) before running the
+#'   code.
 #'
 #' @inheritParams createbarerrorplots
 #'
@@ -175,7 +177,7 @@ biascorrection <- function(experimental,
   if (type == 1) {
     # experimental data
     rv$fileimport_experimental <- clean_dt(
-      data.table::fread(experimental, header = T),
+      data.table::fread(experimental, header = TRUE),
       "experimental",
       type = 1,
       logfilename = logfilename
@@ -185,7 +187,7 @@ biascorrection <- function(experimental,
               filename = paste0(csvdir, "raw_experimental_data.csv"))
 
     # calibration data
-    cal_type_1 <- clean_dt(data.table::fread(calibration, header = T),
+    cal_type_1 <- clean_dt(data.table::fread(calibration, header = TRUE),
                            "calibration", type = 1,
                            logfilename = logfilename)
     rv$fileimport_calibration <- cal_type_1[["dat"]]
@@ -275,7 +277,7 @@ biascorrection <- function(experimental,
     # correct here calibration-data with hyperbolic and cubic regression
     # to get relative error of corrected data
     # hyperbolic correction
-    rv$choices_list <- rv$reg_stats[, c("Name"), with = F
+    rv$choices_list <- rv$reg_stats[, c("Name"), with = FALSE
                                     ][
                                       , ("better_model") := 0
                                       ]
@@ -373,7 +375,7 @@ biascorrection <- function(experimental,
 
 
     # cubic correction
-    rv$choices_list <- rv$reg_stats[, c("Name"), with = F
+    rv$choices_list <- rv$reg_stats[, c("Name"), with = FALSE
                                     ][
                                       , ("better_model") := 1
                                       ]
@@ -482,12 +484,12 @@ biascorrection <- function(experimental,
         selection_method = rv$selection_method
       )
     } else if (correct_method %in% c("hyperbolic", "h")) {
-      rv$choices_list <- rv$reg_stats[, c("Name"), with = F
+      rv$choices_list <- rv$reg_stats[, c("Name"), with = FALSE
                                       ][
                                         , ("better_model") := 0
                                         ]
     } else if (correct_method %in% c("cubic", "c")) {
-      rv$choices_list <- rv$reg_stats[, c("Name"), with = F
+      rv$choices_list <- rv$reg_stats[, c("Name"), with = FALSE
                                       ][
                                         , ("better_model") := 1
                                         ]

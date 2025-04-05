@@ -15,11 +15,14 @@ test_that(
   desc = "plotting_utility",
   code = {
 
-    #"skip_on_cran()
+    local_edition(3)
+    local_reproducible_output(rstudio = TRUE)
 
     rv$minmax <- FALSE
     rv$sample_locus_name <- "Test"
     rv$seed <- 1234
+
+    options(rBiasCorrection.nls_implementation = "LM")
 
     # create plotdir
     plotdir <- paste0(prefix, "/plotdir/")
@@ -79,6 +82,8 @@ test_that(
 
     expect_length(list.files(plotdir), 10)
 
+    options(rBiasCorrection.nls_implementation = "GN.paper")
+
     # cleanup
     expect_silent(clean_up(plotdir = plotdir,
                            csvdir = csvdir))
@@ -88,11 +93,14 @@ test_that(
   desc = "createbarerrorplots",
   code = {
 
-    #"skip_on_cran()
+    local_edition(3)
+    local_reproducible_output(rstudio = TRUE)
 
     rv$minmax <- FALSE
     rv$sample_locus_name <- "Test"
     rv$seed <- 1234
+
+    options(rBiasCorrection.nls_implementation = "LM")
 
     # create plotdir
     plotdir <- paste0(prefix, "/plotdir/")
@@ -192,6 +200,8 @@ test_that(
 
     expect_length(list.files(plotdir), 10)
 
+    options(rBiasCorrection.nls_implementation = "GN.paper")
+
     # cleanup
     expect_silent(clean_up(plotdir = plotdir,
                            csvdir = csvdir))
@@ -202,11 +212,14 @@ test_that(
   desc = "create_exampleplot",
   code = {
 
-    #"skip_on_cran()
+    local_edition(3)
+    local_reproducible_output(rstudio = TRUE)
 
     rv$minmax <- FALSE
     rv$sample_locus_name <- "Test"
     rv$seed <- 1234
+
+    options(rBiasCorrection.nls_implementation = "LM")
 
     # create plotdir
     plotdir <- paste0(prefix, "/plotdir/")
@@ -235,6 +248,8 @@ test_that(
 
 
     expect_length(list.files(plotdir), 1)
+
+    options(rBiasCorrection.nls_implementation = "GN.paper")
 
     # cleanup
     expect_silent(clean_up(plotdir = plotdir,

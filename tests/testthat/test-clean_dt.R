@@ -10,47 +10,41 @@ test_that(
   code = {
 
     local_edition(3)
+    local_reproducible_output(rstudio = TRUE)
+
     # experimental data
     exp_type_1 <- fread("./testdata/exp_type_1.csv")
     exp_type_1 <- clean_dt(exp_type_1, "experimental", 1, logfilename)
     expect_type(exp_type_1, "list")
-    expect_snapshot_value(
-      x = table_prep(exp_type_1[["dat"]]),
-      style = "json2",
+    expect_snapshot(
+      x = round(table_prep(exp_type_1[["dat"]]), 1),
       cran = FALSE,
-      tolerance = 10e-3,
-      ignore_function_env = TRUE
+      error = FALSE
     )
 
     exp_type_1 <- fread("./testdata/exp_type_1_empty_col.csv", header = TRUE)
     exp_type_1 <- clean_dt(exp_type_1, "experimental", 1, logfilename)[["dat"]]
-    expect_snapshot_value(
-      x = table_prep(exp_type_1),
-      style = "json2",
+    expect_snapshot(
+      x = round(table_prep(exp_type_1), 1),
       cran = FALSE,
-      tolerance = 10e-3,
-      ignore_function_env = TRUE
+      error = FALSE
     )
 
     exp_type_1 <- fread("./testdata/exp_type_1_empty_row.csv")
     exp_type_1 <- clean_dt(exp_type_1, "experimental", 1, logfilename)[["dat"]]
-    expect_snapshot_value(
-      x = table_prep(exp_type_1),
-      style = "json2",
+    expect_snapshot(
+      x = round(table_prep(exp_type_1), 1),
       cran = FALSE,
-      tolerance = 10e-3,
-      ignore_function_env = TRUE
+      error = FALSE
     )
 
     # calibration data
     cal_type_1 <- fread("./testdata/cal_type_1.csv")
     cal_type_1 <- clean_dt(cal_type_1, "calibration", 1, logfilename)[["dat"]]
-    expect_snapshot_value(
-      x = table_prep(cal_type_1),
-      style = "json2",
+    expect_snapshot(
+      x = round(table_prep(cal_type_1), 1),
       cran = FALSE,
-      tolerance = 10e-3,
-      ignore_function_env = TRUE
+      error = FALSE
     )
   })
 
@@ -59,52 +53,50 @@ test_that(
   code = {
 
     local_edition(3)
+    local_reproducible_output(rstudio = TRUE)
+
     # experimental data
     exp_type_2 <- fread("./testdata/exp_type_2.csv")
     exp_type_2 <- clean_dt(exp_type_2, "experimental", 2, logfilename)[["dat"]]
-    expect_snapshot_value(
-      x = table_prep(exp_type_2),
-      style = "json2",
+    expect_snapshot(
+      x = round(table_prep(exp_type_2), 1),
       cran = FALSE,
-      tolerance = 10e-3,
-      ignore_function_env = TRUE
+      error = FALSE
     )
 
     exp_type_2 <- fread("./testdata/exp_type_2_empty_col.csv", header = TRUE)
     exp_type_2 <- clean_dt(exp_type_2, "experimental", 2, logfilename)[["dat"]]
-    expect_snapshot_value(
-      x = table_prep(exp_type_2),
-      style = "json2",
+    expect_snapshot(
+      x = round(table_prep(exp_type_2), 1),
       cran = FALSE,
-      tolerance = 10e-3,
-      ignore_function_env = TRUE
+      error = FALSE
     )
 
     exp_type_2 <- fread("./testdata/exp_type_2_empty_row.csv")
     exp_type_2 <- clean_dt(exp_type_2, "experimental", 2, logfilename)[["dat"]]
-    expect_snapshot_value(
-      x = table_prep(exp_type_2),
-      style = "json2",
+    expect_snapshot(
+      x = round(table_prep(exp_type_2), 1),
       cran = FALSE,
-      tolerance = 10e-3,
-      ignore_function_env = TRUE
+      error = FALSE
     )
 
     # calibration data
     cal_type_2 <- fread("./testdata/cal_type_2.csv")
     cal_type_2 <- clean_dt(cal_type_2, "calibration", 2, logfilename)[["dat"]]
-    expect_snapshot_value(
-      x = table_prep(cal_type_2),
-      style = "json2",
+    expect_snapshot(
+      x = round(table_prep(cal_type_2), 1),
       cran = FALSE,
-      tolerance = 10e-3,
-      ignore_function_env = TRUE
+      error = FALSE
     )
   })
 
 test_that(
   desc = "wrong description",
   code = {
+
+    local_edition(3)
+    local_reproducible_output(rstudio = TRUE)
+
     # type 1 data
     cal_type_1 <- fread("./testdata/cal_type_1.csv")
     expect_error(clean_dt(cal_type_1, "calibraRAtion", 1, logfilename))
@@ -124,29 +116,37 @@ test_that(
 test_that(
   desc = "wrong type",
   code = {
+
+    local_edition(3)
+    local_reproducible_output(rstudio = TRUE)
+
     # type 1 data
     cal_type_1 <- fread("./testdata/cal_type_1.csv")
-    expect_null(clean_dt(cal_type_1, "calibration", 3, logfilename))
-    expect_null(clean_dt(cal_type_1, "calibration", "a", logfilename))
+    expect_error(clean_dt(cal_type_1, "calibration", 3L, logfilename))
+    expect_error(clean_dt(cal_type_1, "calibration", "a", logfilename))
 
     exp_type_1 <- fread("./testdata/exp_type_1.csv")
-    expect_null(clean_dt(exp_type_1, "experimental", 65, logfilename))
-    expect_null(clean_dt(exp_type_1, "experimental", "tre", logfilename))
+    expect_error(clean_dt(exp_type_1, "experimental", 65L, logfilename))
+    expect_error(clean_dt(exp_type_1, "experimental", "tre", logfilename))
 
     # type 2 data
     cal_type_2 <- fread("./testdata/cal_type_2.csv")
-    expect_null(clean_dt(cal_type_2, "calibration", 3, logfilename))
-    expect_null(clean_dt(cal_type_2, "calibration", "a", logfilename))
+    expect_error(clean_dt(cal_type_2, "calibration", 3L, logfilename))
+    expect_error(clean_dt(cal_type_2, "calibration", "a", logfilename))
 
     exp_type_2 <- fread("./testdata/exp_type_2.csv")
-    expect_null(clean_dt(exp_type_2, "experimental", 65, logfilename))
-    expect_null(clean_dt(exp_type_2, "experimental", "tre", logfilename))
+    expect_error(clean_dt(exp_type_2, "experimental", 65L, logfilename))
+    expect_error(clean_dt(exp_type_2, "experimental", "tre", logfilename))
   })
 
 # wrong first col
 test_that(
   desc = "wrong first column in calibration data type 1",
   code = {
+
+    local_edition(3)
+    local_reproducible_output(rstudio = TRUE)
+
     # type 1 data
     cal_type_1 <- fread("./testdata/cal_type_1_wrong_col_1.csv")
     expect_null(clean_dt(cal_type_1, "calibration", 1, logfilename))
@@ -162,6 +162,10 @@ test_that(
 test_that(
   desc = "heterogenous cpg-sites per locus in type 2 data",
   code = {
+
+    local_edition(3)
+    local_reproducible_output(rstudio = TRUE)
+
     cal_type_2 <- fread("./testdata/cal_type_2_heterogenous.csv")
     expect_null(clean_dt(cal_type_2, "calibration", 2, logfilename))
 

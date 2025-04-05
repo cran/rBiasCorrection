@@ -1,5 +1,5 @@
 # rBiasCorrection: Correct Bias in Quantitative DNA Methylation Analyses.
-# Copyright (C) 2019-2022 Lorenz Kapsner
+# Copyright (C) 2019-2025 Lorenz Kapsner
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -88,15 +88,19 @@
 better_model <- function(statstable_pre,
                          statstable_post_hyperbolic = NULL,
                          statstable_post_cubic = NULL,
-                         selection_method = "SSE") {
+                         selection_method = c("SSE", "RelError")
+                         ) {
+
+  selection_method <- match.arg(selection_method)
 
   stopifnot(
-    is.character(selection_method),
-    selection_method %in% c("SSE", "RelError"),
-    data.table::is.data.table(statstable_pre),
-    data.table::is.data.table(statstable_post_hyperbolic) ||
+    "`statstable_pre` must be of class data.table" =
+      data.table::is.data.table(statstable_pre),
+    "`statstable_post_hyperbolic` must be of class data.table or `NULL`" =
+      data.table::is.data.table(statstable_post_hyperbolic) ||
       is.null(statstable_post_hyperbolic),
-    data.table::is.data.table(statstable_post_cubic) ||
+    "`statstable_post_cubic` must be of class data.table or `NULL`" =
+      data.table::is.data.table(statstable_post_cubic) ||
       is.null(statstable_post_cubic)
   )
 

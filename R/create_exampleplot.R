@@ -1,5 +1,5 @@
 # rBiasCorrection: Correct Bias in Quantitative DNA Methylation Analyses.
-# Copyright (C) 2019-2022 Lorenz Kapsner
+# Copyright (C) 2019-2025 Lorenz Kapsner
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -70,9 +70,9 @@ create_exampleplot <- function(data,
 
   # create base plot
   p <- ggplot2::ggplot(data = data,
-                       ggplot2::aes_string(
-                         x = "true_methylation",
-                         y = "CpG")
+                       ggplot2::aes(
+                         x = .data$true_methylation,
+                         y = .data$CpG)
   ) +
     ggplot2::geom_point() +
     ggplot2::ylab("methylation (%)\napparent after quantification") +
@@ -90,9 +90,9 @@ create_exampleplot <- function(data,
       parse = FALSE
     ) +
     ggplot2::geom_pointrange(
-      ggplot2::aes_string(
-        ymin = "ymin",
-        ymax = "ymax"
+      ggplot2::aes(
+        ymin = .data$ymin,
+        ymax = .data$ymax
       ),
       fatten = 1
     )

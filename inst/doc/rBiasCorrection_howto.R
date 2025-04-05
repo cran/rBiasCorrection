@@ -1,11 +1,6 @@
-## ---- include = FALSE---------------------------------------------------------
-knitr::opts_chunk$set(
-  collapse = TRUE,
-  comment = "#>"
-)
-
 ## ----setup--------------------------------------------------------------------
 library(rBiasCorrection)
+
 
 ## -----------------------------------------------------------------------------
 plotdir <- paste0(tempdir(), "/png/")
@@ -15,6 +10,7 @@ dir.create(csvdir)
 
 samplelocusname <- "CDH1"
 seed <- 1234
+
 
 ## -----------------------------------------------------------------------------
 # First of all, the example-data have to be saved as CSV-files as
@@ -31,9 +27,11 @@ temp_file <- rBiasCorrection::example.data_calibration$dat[
 ]
 data.table::fwrite(temp_file, paste0(tempdir(), "/calibration_data.csv"))
 
+
 ## -----------------------------------------------------------------------------
 experimental <- paste0(tempdir(), "/experimental_data.csv")
 calibration <- paste0(tempdir(), "/calibration_data.csv")
+
 
 ## ----results='hide', message=FALSE, warning=FALSE, error=FALSE----------------
 rBiasCorrection::biascorrection(
@@ -46,6 +44,7 @@ rBiasCorrection::biascorrection(
   parallel = FALSE
 )
 
+
 ## -----------------------------------------------------------------------------
 filename <- list.files(csvdir)[
   grepl("regression_stats_[[:digit:]]", list.files(csvdir))
@@ -53,7 +52,4 @@ filename <- list.files(csvdir)[
 reg_stats <- data.table::fread(paste0(csvdir, filename))
 knitr::kable(reg_stats[, 1:9])
 knitr::kable(reg_stats[, 11:16])
-
-## ----out.width='80%'----------------------------------------------------------
-knitr::include_graphics(paste0(plotdir, "CDH1_CpG1.png"))
 

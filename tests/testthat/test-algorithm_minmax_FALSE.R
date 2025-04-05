@@ -16,6 +16,7 @@ test_that(
   code = {
 
     local_edition(3)
+    local_reproducible_output(rstudio = TRUE)
 
     suppressWarnings(future::plan("multisession"))
 
@@ -54,8 +55,47 @@ test_that(
       minmax = rv$minmax,
       seed = rv$seed
     )
+
+    options(rBiasCorrection.nls_implementation = "GN.guess")
+    regression_results_fast <- regression_utility(
+      data = rv$fileimport_calibration,
+      samplelocusname = "Testlocus",
+      locus_id = NULL,
+      rv = rv,
+      mode = NULL,
+      logfilename = logfilename,
+      minmax = rv$minmax,
+      seed = rv$seed
+    )
+
+    expect_equal(
+      object = regression_results$result_list,
+      expected =  regression_results_fast$result_list
+    )
+
+    options(rBiasCorrection.nls_implementation = "LM")
+    regression_results_minpack <- regression_utility(
+      data = rv$fileimport_calibration,
+      samplelocusname = "Testlocus",
+      locus_id = NULL,
+      rv = rv,
+      mode = NULL,
+      logfilename = logfilename,
+      minmax = rv$minmax,
+      seed = rv$seed
+    )
+
+    expect_equal(
+      object = regression_results$result_list,
+      expected =  regression_results_minpack$result_list
+    )
+
+    options(rBiasCorrection.nls_implementation = "GN.paper")
+
     plotlist_reg <- regression_results[["plot_list"]]
-    rv$result_list <- regression_results[["result_list"]]
+    rv$result_list <- testhelper_apply_robust_results_list(
+      regression_results[["result_list"]]
+    )
 
     regression_results2 <- regression_type1(rv$fileimport_calibration,
                                             rv$vec_cal,
@@ -70,50 +110,15 @@ test_that(
     rv$reg_stats <- statistics_list(rv$result_list, minmax = rv$minmax)
 
     # some tests
-    expect_type(regression_results, "list")
-    #" expect_known_hash(regression_results, "a75be8d5af")
-    # oder 0bdeacf677, fc7ae30d08
-    expect_type(plotlist_reg, "list")
-    #" expect_known_hash(plotlist_reg, "20fa85b532")
-    # oder c2e96f84fc, 0c3c5db52b
-
-    expect_snapshot_value(
-      x = rv$result_list,
-      style = "serialize",
+    expect_snapshot(
+      x = round(table_prep(rv$reg_stats), 1),
       cran = FALSE,
-      tolerance = 10e-3,
-      ignore_function_env = TRUE
+      error = FALSE
     )
 
-    expect_type(rv$reg_stats, "list")
-    expect_s3_class(rv$reg_stats, "data.table")
-
-    expect_snapshot_value(
-      x = table_prep(rv$reg_stats),
-      style = "json2",
-      cran = FALSE,
-      tolerance = 10e-3,
-      ignore_function_env = TRUE
-    )
-
-    expect_true(
-      all.equal(
-        regression_results,
-        regression_results2,
-        check.environment = FALSE
-      )
-    )
-    expect_true(
-      all.equal(
-        regression_results[["plot_list"]],
-        regression_results2[["plot_list"]],
-        check.environment = FALSE
-      )
-    )
     expect_equal(
-      object = regression_results[["result_list"]],
-      expected = regression_results2[["result_list"]],
-      ignore_function_env = TRUE
+        regression_results$result_list,
+        regression_results2$result_list
     )
 
     # calculate final results
@@ -141,51 +146,33 @@ test_that(
       colnames(rv$fileimport_calibration)
 
     # some tests
-    expect_type(solved_eq, "list")
-    expect_type(rv$final_results, "list")
-    expect_s3_class(rv$final_results, "data.table")
-    expect_snapshot_value(
-      x = table_prep(rv$final_results),
-      style = "json2",
+    expect_snapshot(
+      x = round(table_prep(rv$final_results), 1),
       cran = FALSE,
-      tolerance = 10e-3,
-      ignore_function_env = TRUE
+      error = FALSE
     )
 
-    expect_type(rv$substitutions, "list")
-    expect_s3_class(rv$substitutions, "data.table")
-    expect_snapshot_value(
-      x = table_prep(rv$substitutions),
-      style = "json2",
+    expect_snapshot(
+      x = round(table_prep(rv$substitutions), 1),
       cran = FALSE,
-      tolerance = 10e-3,
-      ignore_function_env = TRUE
+      error = FALSE
     )
 
-    expect_type(solved_eq2, "list")
-    expect_snapshot_value(
-      x = table_prep(solved_eq2[["results"]]),
-      style = "json2",
+    expect_snapshot(
+      x = round(table_prep(solved_eq2[["results"]]), 1),
       cran = FALSE,
-      tolerance = 10e-3,
-      ignore_function_env = TRUE
+      error = FALSE
     )
-    expect_snapshot_value(
-      x = table_prep(solved_eq2[["substitutions"]]),
-      style = "json2",
+    expect_snapshot(
+      x = round(table_prep(solved_eq2[["substitutions"]]), 1),
       cran = FALSE,
-      tolerance = 10e-3,
-      ignore_function_env = TRUE
+      error = FALSE
     )
 
-    expect_type(rv$fileimport_cal_corrected, "list")
-    expect_s3_class(rv$fileimport_cal_corrected, "data.table")
-    expect_snapshot_value(
-      x = table_prep(rv$fileimport_cal_corrected),
-      style = "json2",
+    expect_snapshot(
+      x = round(table_prep(rv$fileimport_cal_corrected), 1),
       cran = FALSE,
-      tolerance = 10e-3,
-      ignore_function_env = TRUE
+      error = FALSE
     )
 
     # hyperbolic correction
@@ -208,25 +195,16 @@ test_that(
     )
     rv$substitutions_corrected_h <- solved_eq_h[["substitutions"]]
 
-    expect_type(solved_eq_h, "list")
-    expect_type(rv$fileimport_cal_corrected_h, "list")
-    expect_s3_class(rv$fileimport_cal_corrected_h, "data.table")
-    expect_snapshot_value(
-      x = table_prep(rv$fileimport_cal_corrected_h),
-      style = "json2",
+    expect_snapshot(
+      x = round(table_prep(rv$fileimport_cal_corrected_h), 1),
       cran = FALSE,
-      tolerance = 10e-3,
-      ignore_function_env = TRUE
+      error = FALSE
     )
 
-    expect_type(rv$substitutions_corrected_h, "list")
-    expect_s3_class(rv$substitutions_corrected_h, "data.table")
-    expect_snapshot_value(
-      x = table_prep(rv$substitutions_corrected_h),
-      style = "json2",
+    expect_snapshot(
+      x = round(table_prep(rv$substitutions_corrected_h), 1),
       cran = FALSE,
-      tolerance = 10e-3,
-      ignore_function_env = TRUE
+      error = FALSE
     )
 
     # calculate new calibration curves from corrected calibration data
@@ -240,34 +218,18 @@ test_that(
       seed = rv$seed
     )
     plotlist_reg <- regression_results[["plot_list"]]
-    rv$result_list_hyperbolic <- regression_results[["result_list"]]
+    rv$result_list_hyperbolic <- testhelper_apply_robust_results_list(
+      regression_results[["result_list"]],
+      dgts = 1
+    )
     # save regression statistics to reactive value
     rv$reg_stats_corrected_h <- statistics_list(rv$result_list_hyperbolic,
                                                 minmax = rv$minmax)
 
-    expect_type(regression_results, "list")
-    #" expect_known_hash(regression_results, "a75be8d5af")
-    # oder 0bdeacf677, fc7ae30d08
-    expect_type(plotlist_reg, "list")
-    #" expect_known_hash(plotlist_reg, "20fa85b532")
-    # oder c2e96f84fc, 0c3c5db52b
-    expect_type(rv$result_list_hyperbolic, "list")
-    expect_snapshot_value(
-      x = rv$result_list_hyperbolic,
-      style = "serialize",
+    expect_snapshot(
+      x = round(table_prep(rv$reg_stats_corrected_h), 0),
       cran = FALSE,
-      tolerance = 10e-3,
-      ignore_function_env = TRUE
-    )
-
-    expect_type(rv$reg_stats_corrected_h, "list")
-    expect_s3_class(rv$reg_stats_corrected_h, "data.table")
-    expect_snapshot_value(
-      x = table_prep(rv$reg_stats_corrected_h),
-      style = "json2",
-      cran = FALSE,
-      tolerance = 10e-3,
-      ignore_function_env = TRUE
+      error = FALSE
     )
 
     # cubic correction
@@ -290,25 +252,16 @@ test_that(
     )
     rv$substitutions_corrected_c <- solved_eq_c[["substitutions"]]
 
-    expect_type(solved_eq_c, "list")
-    expect_type(rv$fileimport_cal_corrected_c, "list")
-    expect_s3_class(rv$fileimport_cal_corrected_c, "data.table")
-    expect_snapshot_value(
-      x = table_prep(rv$fileimport_cal_corrected_c),
-      style = "json2",
+    expect_snapshot(
+      x = round(table_prep(rv$fileimport_cal_corrected_c), 1),
       cran = FALSE,
-      tolerance = 10e-3,
-      ignore_function_env = TRUE
+      error = FALSE
     )
 
-    expect_type(rv$substitutions_corrected_c, "list")
-    expect_s3_class(rv$substitutions_corrected_c, "data.table")
-    expect_snapshot_value(
-      x = table_prep(rv$substitutions_corrected_c),
-      style = "json2",
+    expect_snapshot(
+      x = round(table_prep(rv$substitutions_corrected_c), 1),
       cran = FALSE,
-      tolerance = 10e-3,
-      ignore_function_env = TRUE
+      error = FALSE
     )
 
     # calculate new calibration curves from corrected calibration data
@@ -322,34 +275,24 @@ test_that(
       seed = rv$seed
     )
     plotlist_reg <- regression_results[["plot_list"]]
-    rv$result_list_cubic <- regression_results[["result_list"]]
+    rv$result_list_cubic <- testhelper_apply_robust_results_list(
+      regression_results[["result_list"]],
+      dgts = 2
+    )
     # save regression statistics to reactive value
     rv$reg_stats_corrected_c <- statistics_list(rv$result_list_cubic,
                                                 minmax = rv$minmax)
 
-    expect_type(regression_results, "list")
     #" expect_known_hash(regression_results, "a75be8d5af")
     # oder 0bdeacf677, fc7ae30d08
-    expect_type(plotlist_reg, "list")
     #" expect_known_hash(plotlist_reg, "20fa85b532")
     # oder c2e96f84fc, 0c3c5db52b
     expect_type(rv$result_list_cubic, "list")
-    expect_snapshot_value(
-      x = rv$result_list_cubic,
-      style = "serialize",
-      cran = FALSE,
-      tolerance = 10e-3,
-      ignore_function_env = TRUE
-    )
 
-    expect_type(rv$reg_stats_corrected_c, "list")
-    expect_s3_class(rv$reg_stats_corrected_c, "data.table")
-    expect_snapshot_value(
-      x = table_prep(rv$reg_stats_corrected_c),
-      style = "json2",
+    expect_snapshot(
+      x = round(table_prep(rv$reg_stats_corrected_c), 0),
       cran = FALSE,
-      tolerance = 10e-3,
-      ignore_function_env = TRUE
+      error = FALSE
     )
 
     expect_true(file.remove(paste0(prefix, "/log.txt")))

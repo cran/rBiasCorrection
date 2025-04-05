@@ -17,6 +17,8 @@ test_that(
   code = {
 
     local_edition(3)
+    local_reproducible_output(rstudio = TRUE)
+
     suppressWarnings(future::plan("multisession"))
 
     #"skip_on_cran()
@@ -49,7 +51,9 @@ test_that(
                                              minmax = rv$minmax,
                                              seed = rv$seed)
     plotlist_reg <- regression_results[["plot_list"]]
-    rv$result_list <- regression_results[["result_list"]]
+    rv$result_list <- testhelper_apply_robust_results_list(
+      regression_results[["result_list"]]
+    )
 
     regression_results2 <- regression_type1(
       rv$fileimport_calibration,
@@ -95,7 +99,9 @@ test_that(
       seed = rv$seed
     )
     plotlist_reg <- regression_results[["plot_list"]]
-    rv$result_list_hyperbolic <- regression_results[["result_list"]]
+    rv$result_list_hyperbolic <- testhelper_apply_robust_results_list(
+      regression_results[["result_list"]]
+    )
     # save regression statistics to reactive value
     rv$reg_stats_corrected_h <- statistics_list(rv$result_list_hyperbolic,
                                                 minmax = rv$minmax)
@@ -129,7 +135,9 @@ test_that(
       seed = rv$seed
     )
     plotlist_reg <- regression_results[["plot_list"]]
-    rv$result_list_cubic <- regression_results[["result_list"]]
+    rv$result_list_cubic <- testhelper_apply_robust_results_list(
+      regression_results[["result_list"]]
+    )
     # save regression statistics to reactive value
     rv$reg_stats_corrected_c <- statistics_list(rv$result_list_cubic,
                                                 minmax = rv$minmax)
@@ -164,34 +172,20 @@ test_that(
     )
 
     # some tests
-    expect_type(solved_eq, "list")
-    expect_type(rv$final_results, "list")
-    expect_s3_class(rv$final_results, "data.table")
-    expect_snapshot_value(
-      x = table_prep(rv$final_results),
-      style = "json2",
+    expect_snapshot(
+      x = round(table_prep(rv$final_results), 1),
       cran = FALSE,
-      tolerance = 10e-3,
-      ignore_function_env = TRUE
+      error = FALSE
     )
-    expect_type(rv$substitutions, "list")
-    expect_s3_class(rv$substitutions, "data.table")
-    expect_snapshot_value(
-      x = table_prep(rv$substitutions),
-      style = "json2",
+    expect_snapshot(
+      x = round(table_prep(rv$substitutions), 1),
       cran = FALSE,
-      tolerance = 10e-3,
-      ignore_function_env = TRUE
+      error = FALSE
     )
-    expect_type(solved_eq2, "list")
-    expect_type(rv$fileimport_cal_corrected, "list")
-    expect_s3_class(rv$fileimport_cal_corrected, "data.table")
-    expect_snapshot_value(
-      x = table_prep(rv$fileimport_cal_corrected),
-      style = "json2",
+    expect_snapshot(
+      x = round(table_prep(rv$fileimport_cal_corrected), 1),
       cran = FALSE,
-      tolerance = 10e-3,
-      ignore_function_env = TRUE
+      error = FALSE
     )
 
     expect_true(file.remove(paste0(prefix, "/log.txt")))

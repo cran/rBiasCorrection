@@ -26,9 +26,9 @@ plotting_utility(
 \item{plotlist_reg}{A list object contating regression plots without
 regression curves (output of \code{regression_utility()}).}
 
-\item{type}{A single integer. Type of data to be corrected: either "1"
-(one locus in many samples, e.g. pyrosequencing data) or "2" (many loci
-in one sample, e.g. next-generation sequencing data or microarray data).}
+\item{type}{A single integer. Type of data to be corrected: either \code{1L} (one
+locus in many samples, e.g. pyrosequencing data) or \code{2L} (many loci in one
+sample, e.g. next-generation sequencing data or microarray data).}
 
 \item{samplelocusname}{A character string. In type 1 data: locus name -
 name of the gene locus under investigation. In type 2 data: sample name -
@@ -64,11 +64,11 @@ resulting plots (default: 16).}
 }
 \value{
 This function creates calibration plots and writes them to the
-  local filesystem.
+local filesystem.
 }
 \description{
 Internal function to carry out the plotting of the
-  calibrations curves.
+calibrations curves.
 }
 \examples{
 \donttest{

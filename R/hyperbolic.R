@@ -1,5 +1,5 @@
 # rBiasCorrection: Correct Bias in Quantitative DNA Methylation Analyses.
-# Copyright (C) 2019-2022 Lorenz Kapsner
+# Copyright (C) 2019-2025 Lorenz Kapsner
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -57,19 +57,11 @@ hyperbolic_regression <- function(df_agg,
   write_log(message = "Entered 'hyperbolic_regression'-Function",
             logfilename = logfilename)
 
-  dat <- df_agg
+  dat <- data.table::copy(df_agg)
 
   # true y-values
   true_levels <- dat[, get("true_methylation")]
-
-  # calculate relative error
-  dat[, ("CpG_true_diff") := abs(get("CpG") - get("true_methylation"))]
-  dat[, ("relative_error") := ifelse(
-    get("true_methylation") != 0,
-    (get("CpG_true_diff") / get("true_methylation")) * 100,
-    NA
-  )]
-
+  target_levels <- dat[, get("CpG")]
 
   if (isFALSE(minmax)) {
     write_log(message = "'hyperbolic_regression': minmax = FALSE",
@@ -78,59 +70,13 @@ hyperbolic_regression <- function(df_agg,
     # https://cran.r-project.org/web/packages/nls2/nls2.pdf
     # calculate optimal starting values: (longer runtime; same results?)
 
-    # starting values
-    st <- data.frame(a = c(-1000, 1000),
-                     b = c(-1000, 1000),
-                     d = c(-1000, 1000))
-
-    c <- tryCatch({
-      suppressWarnings(RNGkind(sample.kind = "Rounding"))
-      set.seed(seed)
-      ret <- nls2::nls2(CpG ~ hyperbolic_eq(
-        x = true_levels,
-        a = a,
-        b = b,
-        d = d
-      ),
-      data = dat,
-      start = st,
-      control = stats::nls.control(maxiter = 50))
-
-    }, error = function(e) {
-      # if convergence fails
-      write_log(message = e,
-                logfilename = logfilename)
-      suppressWarnings(RNGkind(sample.kind = "Rounding"))
-      set.seed(seed)
-      mod <- nls2::nls2(CpG ~ hyperbolic_eq(
-        x = true_levels,
-        a = a,
-        b = b,
-        d = d
-      ),
-      data = dat,
-      start = st,
-      algorithm = "brute-force",
-      control = stats::nls.control(maxiter = 1e5))
-
-      suppressWarnings(RNGkind(sample.kind = "Rounding"))
-      set.seed(seed)
-      ret <- nls2::nls2(CpG ~ hyperbolic_eq(
-        x = true_levels,
-        a = a,
-        b = b,
-        d = d
-      ),
-      data = dat,
-      start = mod,
-      algorithm = "brute-force",
-      control = stats::nls.control(maxiter = 1e3))
-      ret
-
-    }, finally = function(f) {
-      return(ret)
-    })
-
+    c <- nls_solver(
+      true_levels = true_levels,
+      target_levels = target_levels,
+      type = "hyperbolic_eq",
+      logfilename = logfilename,
+      seed = seed
+    )
 
     # get coefficients
     coe <- stats::coef(c)
@@ -143,7 +89,7 @@ hyperbolic_regression <- function(df_agg,
     b1 <- 1 + (100 / d)
 
     # parameter 3
-    s <- (1 / abs(d)) * sqrt(I(a - d)^2 + I(b)^2 + 1)
+    s <- (1 / abs(d)) * sqrt((a - d)^2 + (b)^2 + 1)
 
     fitted_values <- hyperbolic_eq(
       x = true_levels,
@@ -190,61 +136,17 @@ hyperbolic_regression <- function(df_agg,
     #%                   lower = 0,
     #%                   upper = 50)$par # due to error with Nelder-Mead
 
-    # starting values
-    st <- data.frame(b = c(-1000, 1000))
-
-    c <- tryCatch({
-      suppressWarnings(RNGkind(sample.kind = "Rounding"))
-      set.seed(seed)
-      ret <- nls2::nls2(CpG ~ hyperbolic_eq_minmax(
-        x = true_levels,
-        b = b,
-        y0 = y0,
-        y1 = y1,
-        m0 = m0,
-        m1 = m1),
-        data = dat,
-        start = st,
-        control = stats::nls.control(maxiter = 50))
-
-    }, error = function(e) {
-      # if convergence fails
-      write_log(message = e,
-                logfilename = logfilename)
-      st <- data.frame(b = c(-1000, 1000))
-
-      suppressWarnings(RNGkind(sample.kind = "Rounding"))
-      set.seed(seed)
-      mod <- nls2::nls2(CpG ~ hyperbolic_eq_minmax(
-        x = true_levels,
-        b = b,
-        y0 = y0,
-        y1 = y1,
-        m0 = m0,
-        m1 = m1),
-        data = dat,
-        start = st,
-        algorithm = "brute-force",
-        control = stats::nls.control(maxiter = 1e5))
-
-      suppressWarnings(RNGkind(sample.kind = "Rounding"))
-      set.seed(seed)
-      ret <- nls2::nls2(CpG ~ hyperbolic_eq_minmax(
-        x = true_levels,
-        b = b,
-        y0 = y0,
-        y1 = y1,
-        m0 = m0,
-        m1 = m1),
-        data = dat,
-        start = mod,
-        algorithm = "brute-force",
-        control = stats::nls.control(maxiter = 1e3))
-      ret
-
-    }, finally = function(f) {
-      return(ret)
-    })
+    c <- nls_solver(
+      true_levels = true_levels,
+      target_levels = target_levels,
+      type = "hyperbolic_eq_minmax",
+      logfilename = logfilename,
+      seed = seed,
+      y0 = y0,
+      y1 = y1,
+      m0 = m0,
+      m1 = m1
+    )
 
     # get coefficients
     coe <- stats::coef(c)
@@ -257,38 +159,25 @@ hyperbolic_regression <- function(df_agg,
       y0 = y0,
       y1 = y1,
       m0 = m0,
-      m1 = m1)
+      m1 = m1
+    )
   }
 
   # the next part is equal for minmax = FALSE and minmax = TRUE
-
-  # fitted values, extrapolated by true methylation and y0 and y1
-  dat[, ("fitted") := fitted_values]
-
-  # sum of squares between fitted and measuerd values
-  dat[, ("CpG_fitted_diff") := get("CpG") - get("fitted")]
-  dat[, ("squared_error") := I((get("CpG_fitted_diff"))^2)]
-
-  # sum of squared errors = residual sum of squares
-  sse <- as.numeric(dat[, sum(get("squared_error"), na.rm = TRUE)])
-
-  # squared dist to mean
-  dat[, ("squared_dist_mean") := sdm(get("fitted"))]
-
-  # total sum of squares
-  tss <- as.numeric(dat[, sum(get("squared_dist_mean"), na.rm = TRUE)])
+  sse_tss_list <- sse_tss(datatable = dat, fitted_values = fitted_values)
 
   # sum of squared errors
   outlist <- list("Var" = vec,
                   "relative_error" = dat[
                     , mean(get("relative_error"), na.rm = TRUE)],
-                  "SSE_hyper" = sse)
+                  "SSE_hyper" = sse_tss_list$sse)
 
   if (isFALSE(minmax)) {
     outlist[["Coef_hyper"]] <- list("a" = a,
                                     "b" = b,
                                     "d" = d,
-                                    "R2" = 1 - (sse / tss),
+                                    "R2" = 1 - (sse_tss_list$sse /
+                                                  sse_tss_list$tss),
                                     "b1" = b1,
                                     "s" = s)
   } else if (isTRUE(minmax)) {
@@ -298,7 +187,8 @@ hyperbolic_regression <- function(df_agg,
                                     "b" = b,
                                     "m0" = m0,
                                     "m1" = m1,
-                                    "R2" = 1 - (sse / tss))
+                                    "R2" = 1 - (sse_tss_list$sse /
+                                                  sse_tss_list$tss))
   }
   return(outlist)
 }

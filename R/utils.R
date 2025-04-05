@@ -1,5 +1,5 @@
 # rBiasCorrection: Correct Bias in Quantitative DNA Methylation Analyses.
-# Copyright (C) 2019-2022 Lorenz Kapsner
+# Copyright (C) 2019-2025 Lorenz Kapsner
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -211,7 +211,32 @@ rsq <- function(true, fitted) {
 
 
 sdm <- function(vector) {
-  I((vector - mean(vector))^2)
+  return((vector - mean(vector))^2)
+}
+
+sse_tss <- function(datatable, fitted_values) {
+  dat <- data.table::copy(datatable)
+
+  # fitted values
+  dat[, ("fitted") := fitted_values]
+
+  # sum of squares between fitted and measured values
+  dat[, ("CpG_fitted_diff") := get("CpG") - get("fitted")]
+  dat[, ("squared_error") := get("CpG_fitted_diff")^2]
+
+  # sum of squared errors = residual sum of squares
+  sse <- as.numeric(dat[, sum(get("squared_error"), na.rm = TRUE)])
+
+  # squared dist to mean
+  dat[, ("squared_dist_mean") := sdm(get("fitted"))]
+
+  # total sum of squares
+  tss <- as.numeric(dat[, sum(get("squared_dist_mean"), na.rm = TRUE)])
+
+  return(list(
+    "sse" = sse,
+    "tss" = tss
+  ))
 }
 
 
@@ -273,3 +298,25 @@ handle_text_input <- function(textinput) {
 round_to_fifty <- function(max_err) {
   return(ceiling(max_err / 50) * 50)
 }
+
+testhelper_round_results_list <- function(x, dgts = 3) {
+  list(
+    Var = x$Var,
+    relative_error = x$relative_error,
+    SSE_hyper = x$SSE_hyper,
+    Coef_hyper = lapply(x$Coef_hyper, round, digits = dgts),
+    SSE_cubic = x$SSE_cubic,
+    Coef_cubic = lapply(x$Coef_cubic, round, digits = dgts)
+  )
+}
+
+testhelper_apply_robust_results_list <- function(res_list, dgts = 3) {
+  sapply(
+    X = res_list,
+    FUN = testhelper_round_results_list,
+    dgts = dgts,
+    simplify = FALSE,
+    USE.NAMES = TRUE
+  )
+}
+

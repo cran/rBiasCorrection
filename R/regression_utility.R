@@ -1,5 +1,5 @@
 # rBiasCorrection: Correct Bias in Quantitative DNA Methylation Analyses.
-# Copyright (C) 2019-2022 Lorenz Kapsner
+# Copyright (C) 2019-2025 Lorenz Kapsner
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -27,6 +27,8 @@
 #'   for the algorithms.
 #' @param mode A character string. Default: NULL. Used to indicate "corrected"
 #'   calibration data.
+#'
+#' @importFrom ggplot2 .data
 #'
 #' @return The function performs the regression calculations and returns
 #'   the results in a list.
@@ -78,13 +80,13 @@ regression_utility <- function(data,
 
   if (!is.null(locus_id)) {
     write_log(
-      message = paste0("### Starting with regression ",
+      message = paste0("\n### Starting with regression ",
                        "calculations ###\n\nLocus ID: ",
                        locus_id),
       logfilename = logfilename)
   } else {
     write_log(
-      message = paste0("### Starting with regression calculations ###"),
+      message = paste0("\n### Starting with regression calculations ###"),
       logfilename = logfilename)
   }
 
@@ -236,9 +238,10 @@ regression_type1 <- function(datatable,
         )
 
         p <- ggplot2::ggplot(data = gdat,
-                             ggplot2::aes_string(
-                               x = "true_methylation",
-                               y = "CpG")
+                             ggplot2::aes(
+                               x = .data$true_methylation,
+                               y = .data$CpG
+                             )
         ) +
           ggplot2::geom_point() +
           ggplot2::ylab(custom_ylab) +
@@ -262,9 +265,9 @@ regression_type1 <- function(datatable,
           if ("ymin" %in% colnames(gdat) &&
               "ymax" %in% colnames(gdat)) {
             p <- p + ggplot2::geom_pointrange(
-              ggplot2::aes_string(
-                ymin = "ymin",
-                ymax = "ymax"
+              ggplot2::aes(
+                ymin = .data$ymin,
+                ymax = .data$ymax
               ),
               fatten = 1
             )

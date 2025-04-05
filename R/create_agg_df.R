@@ -1,5 +1,5 @@
 # rBiasCorrection: Correct Bias in Quantitative DNA Methylation Analyses.
-# Copyright (C) 2019-2022 Lorenz Kapsner
+# Copyright (C) 2019-2025 Lorenz Kapsner
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -38,6 +38,14 @@ create_agg_df <- function(datatable,
   if (df_out[is.na(get("sd")), .N] == nrow(df_out)) {
     df_out[, ("sd") := NULL]
   }
+
+  # calculate relative error
+  df_out[, ("CpG_true_diff") := abs(get("CpG") - get("true_methylation"))]
+  df_out[, ("relative_error") := ifelse(
+    get("true_methylation") != 0,
+    (get("CpG_true_diff") / get("true_methylation")) * 100,
+    NA
+  )]
 
   return(df_out[!is.na(get("CpG")), ])
 }

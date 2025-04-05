@@ -1,5 +1,5 @@
 # rBiasCorrection: Correct Bias in Quantitative DNA Methylation Analyses.
-# Copyright (C) 2019-2022 Lorenz Kapsner
+# Copyright (C) 2019-2025 Lorenz Kapsner
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -18,18 +18,27 @@
 # implementation of cubic equation
 cubic_eq <- function(x, a, b, c, d) {
   return(
-    (a * I(x^3) + b * I(x^2) + c * x + d)
+    (a * x^3 + b * x^2 + c * x + d)
   )
 }
 
 cubic_eq_minmax <- function(x, a, b, y0, y1, m0, m1) {
   return(
-    (a * I((x - m0)^3) +
-       b * I((x - m0)^2) +
+    (a * (x - m0)^3 +
+       b * (x - m0)^2 +
        (x - m0) * (((y1 - y0) /
-                      (m1 - m0)) - a * I((m1 - m0)^2) - b * (m1 - m0))
+                      (m1 - m0)) - a * (m1 - m0)^2 - b * (m1 - m0))
      + y0)
   )
+}
+
+cubic_fitter <- function(target_levels, true_levels) {
+  pol_reg <- stats::lm(
+    target_levels ~ true_levels +
+      I(true_levels^2) +
+      I(true_levels^3)
+  )
+  return(pol_reg)
 }
 
 # find best parameters for cubic regression
@@ -41,19 +50,18 @@ cubic_regression <- function(df_agg,
   write_log(message = "Entered 'cubic_regression'-Function",
             logfilename = logfilename)
 
-  dat <- df_agg
+  dat <- data.table::copy(df_agg)
 
   # true y-values
   true_levels <- dat[, get("true_methylation")]
+  target_levels <- dat[, get("CpG")]
 
   if (isFALSE(minmax)) {
     write_log(message = "'cubic_regression': minmax = FALSE",
               logfilename = logfilename)
 
-    pol_reg <- stats::lm(CpG ~ true_methylation +
-                           I(true_methylation^2) +
-                           I(true_methylation^3),
-                         data = dat)
+    pol_reg <- cubic_fitter(target_levels = target_levels,
+                            true_levels = true_levels)
     cof <- stats::coefficients(pol_reg)
 
     # correct values
@@ -85,64 +93,17 @@ cubic_regression <- function(df_agg,
     m0 <- dat[, min(get("true_methylation"))]
     m1 <- dat[, max(get("true_methylation"))]
 
-    # starting values
-    st <- data.frame(a = c(-1000, 1000),
-                     b = c(-1000, 1000))
-
-    c <- tryCatch({
-      suppressWarnings(RNGkind(sample.kind = "Rounding"))
-      set.seed(seed)
-      ret <- nls2::nls2(CpG ~ cubic_eq_minmax(
-        x = true_levels,
-        a = a,
-        b = b,
-        y0 = y0,
-        y1 = y1,
-        m0 = m0,
-        m1 = m1
-      ),
-      data = dat,
-      start = st,
-      control = stats::nls.control(maxiter = 50))
-    }, error = function(e) {
-      # if convergence fails
-      write_log(message = e,
-                logfilename = logfilename)
-      suppressWarnings(RNGkind(sample.kind = "Rounding"))
-      set.seed(seed)
-      mod <- nls2::nls2(CpG ~ cubic_eq_minmax(
-        x = true_levels,
-        a = a,
-        b = b,
-        y0 = y0,
-        y1 = y1,
-        m0 = m0,
-        m1 = m1
-      ),
-      data = dat,
-      start = st,
-      algorithm = "brute-force",
-      control = stats::nls.control(maxiter = 1e5))
-
-      suppressWarnings(RNGkind(sample.kind = "Rounding"))
-      set.seed(seed)
-      ret <- nls2::nls2(CpG ~ cubic_eq_minmax(
-        x = true_levels,
-        a = a,
-        b = b,
-        y0 = y0,
-        y1 = y1,
-        m0 = m0,
-        m1 = m1
-      ),
-      data = dat,
-      start = mod,
-      algorithm = "brute-force",
-      control = stats::nls.control(maxiter = 1e3))
-      ret
-    }, finally = function(f) {
-      return(ret)
-    })
+    c <- nls_solver(
+      true_levels = true_levels,
+      target_levels = target_levels,
+      type = "cubic_eq_minmax",
+      logfilename = logfilename,
+      seed = seed,
+      y0 = y0,
+      y1 = y1,
+      m0 = m0,
+      m1 = m1
+    )
 
     # get coefficients
     coe <- stats::coef(c)
@@ -161,32 +122,18 @@ cubic_regression <- function(df_agg,
 
   }
 
-  # fitted values
-  dat[, ("fitted") := fitted_values]
-
-  # sum of squares between fitted and measuerd values
-  dat[, ("CpG_fitted_diff") := get("CpG") - get("fitted")]
-  dat[, ("squared_error") := I((get("CpG_fitted_diff"))^2)]
-
-  # sum of squared errors = residual sum of squares
-  sse <- as.numeric(dat[, sum(get("squared_error"), na.rm = TRUE)])
-
-  # squared dist to mean
-  dat[, ("squared_dist_mean") := sdm(get("fitted"))]
-
-  # total sum of squares
-  tss <- as.numeric(dat[, sum(get("squared_dist_mean"), na.rm = TRUE)])
-
+  sse_tss_list <- sse_tss(datatable = dat, fitted_values = fitted_values)
 
   # sum of squared errors
-  outlist <- list("SSE_cubic" = sse)
+  outlist <- list("SSE_cubic" = sse_tss_list$sse)
 
   if (isFALSE(minmax)) {
     outlist[["Coef_cubic"]] <- list("a" = unname(cof[4]),
                                     "b" = unname(cof[3]),
                                     "c" = unname(cof[2]),
                                     "d" = unname(cof[1]),
-                                    "R2" = 1 - (sse / tss))
+                                    "R2" = 1 - (sse_tss_list$sse /
+                                                  sse_tss_list$tss))
   } else if (isTRUE(minmax)) {
 
     outlist[["Coef_cubic"]] <- list("y0" = y0,
@@ -195,7 +142,8 @@ cubic_regression <- function(df_agg,
                                     "b" = b,
                                     "m0" = m0,
                                     "m1" = m1,
-                                    "R2" = 1 - (sse / tss))
+                                    "R2" = 1 - (sse_tss_list$sse /
+                                                  sse_tss_list$tss))
   }
   return(outlist)
 }

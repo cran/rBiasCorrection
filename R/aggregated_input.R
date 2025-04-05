@@ -1,5 +1,5 @@
 # rBiasCorrection: Correct Bias in Quantitative DNA Methylation Analyses.
-# Copyright (C) 2019-2022 Lorenz Kapsner
+# Copyright (C) 2019-2025 Lorenz Kapsner
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -53,17 +53,27 @@
 #'
 #' @export
 #'
-aggregated_input <- function(datatable, description, vec_cal, type = NULL) {
+aggregated_input <- function(
+    datatable,
+    description = c("experimental", "calibration"),
+    vec_cal,
+    type = NULL
+  ) {
+
+  description <- match.arg(description)
+
+  if (!is.null(type)) {
+    type <- as.integer(type)
+  }
 
   stopifnot(
-    data.table::is.data.table(datatable),
-    is.character(description),
-    description %in% c("experimental", "calibration"),
+    "`datatable` must be of class data.table" =
+      data.table::is.data.table(datatable),
     is.vector(vec_cal),
     ifelse(
-      description == "experimental",
-      type == 1 || type == 2,
-      is.null(type)
+      test = !is.null(type),
+      yes = description == "experimental" && type == 1L || type == 2L,
+      no = TRUE
     )
   )
 
